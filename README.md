@@ -1,4 +1,4 @@
-#Standing up Mesos-cluster on your Local Mac
+#Standing up Mesos-cluster on your Local 
 
 #Prerequisites
 
