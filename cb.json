@@ -1,0 +1,69 @@
+{
+  "id": "/couchbase-elements",
+  "cmd": null,
+  "cpus": 0.1,
+  "mem": 256,
+  "disk": 0,
+  "instances": 1,
+  "constraints": [
+    [
+      "hostname",
+      "UNIQUE"
+    ]
+  ],
+  "container": {
+    "type": "DOCKER",
+    "volumes": [],
+    "docker": {
+      "image": "couchbase:community-4.1.0",
+      "network": "BRIDGE",
+      "portMappings": [{
+        "containerPort": 8091,
+        "hostPort": 0,
+        "servicePort": 0,
+        "protocol": "tcp",
+        "labels": {}
+      }, {
+        "containerPort": 8092,
+        "hostPort": 0,
+        "servicePort": 0,
+        "protocol": "tcp",
+        "labels": {}
+      }, {
+        "containerPort": 8093,
+        "hostPort": 0,
+        "servicePort": 0,
+        "protocol": "tcp",
+        "labels": {}
+      }, {
+        "containerPort": 8094,
+        "hostPort": 0,
+        "servicePort": 0,
+        "protocol": "tcp",
+        "labels": {}
+      }, {
+        "containerPort": 11210,
+        "hostPort": 0,
+        "servicePort": 0,
+        "protocol": "tcp",
+        "labels": {}
+      }],
+      "privileged": false,
+      "forcePullImage": true
+    }
+  },
+  "healthChecks": [{
+    "path": "/",
+    "protocol": "HTTP",
+    "portIndex": 0,
+    "gracePeriodSeconds": 300,
+    "intervalSeconds": 20,
+    "timeoutSeconds": 20,
+    "maxConsecutiveFailures": 3,
+    "ignoreHttp1xx": false
+  }],
+  "labels": {
+    "environment": "qa",
+    "service": "couchbase"
+  }
+}

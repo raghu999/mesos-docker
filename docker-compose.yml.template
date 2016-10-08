@@ -1,0 +1,72 @@
+version: "2"
+
+services:
+  zk:
+    image: raghuchalla/zookeeper
+    network_mode: host
+    environment:
+      ZK_CONFIG: tickTime=2000,initLimit=10,syncLimit=5,maxClientCnxns=128,forceSync=no,clientPort=2181
+      ZK_ID: 1
+
+  master:
+    image: mesosphere/mesos-master:1.0.0-2.0.89.ubuntu1404
+    network_mode: host
+    environment:
+      MESOS_ZK: zk://EXTERNAL_IP:2181/mesos
+      MESOS_QUORUM: 1
+      MESOS_CLUSTER: docker-compose
+      MESOS_REGISTRY: replicated_log # default is in_memory for some reason
+      MESOS_HOSTNAME: EXTERNAL_IP
+      LIBPROCESS_IP: EXTERNAL_IP
+    depends_on:
+      - zk
+          
+  marathon:
+    image: mesosphere/marathon:v1.2.0-RC6
+    network_mode: host
+    environment:
+      MARATHON_MASTER: zk://EXTERNAL_IP:2181/mesos
+    depends_on:
+      - zk
+
+  slave1:
+    image: mesosphere/mesos-slave:1.0.0-2.0.89.ubuntu1404
+    network_mode: host
+    pid: host
+    environment:
+      MESOS_MASTER: zk://EXTERNAL_IP:2181/mesos
+      MESOS_CONTAINERIZERS: docker,mesos
+      MESOS_PORT: 5051
+      MESOS_RESOURCES: ports(*):[11000-11999]
+      MESOS_HOSTNAME: EXTERNAL_IP
+      LIBPROCESS_IP: EXTERNAL_IP
+      MESOS_WORK_DIR: /tmp/mesos
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup
+      - /usr/local/bin/docker:/usr/bin/docker 
+      - /var/run/docker.sock:/var/run/docker.sock 
+      - /sys:/sys  
+    depends_on:
+      - zk
+
+#ADD Extra Slaves accordingly      
+#slave2:
+#    image: mesosphere/mesos-slave:1.0.0-2.0.89.ubuntu1404
+#    network_mode: host
+#    pid: host
+#    environment:
+#      MESOS_MASTER: zk://EXTERNAL_IP:2181/mesos
+#      MESOS_CONTAINERIZERS: docker,mesos
+#      MESOS_PORT: 5051
+#      MESOS_RESOURCES: ports(*):[11000-11999]
+#      MESOS_HOSTNAME: EXTERNAL_IP
+#      LIBPROCESS_IP: EXTERNAL_IP
+#      MESOS_WORK_DIR: /tmp/mesos
+#    volumes:
+#      - /sys/fs/cgroup:/sys/fs/cgroup
+#      - /usr/local/bin/docker:/usr/bin/docker 
+#      - /var/run/docker.sock:/var/run/docker.sock 
+#      - /sys:/sys 
+#    depends_on:
+#      - zk
+  
